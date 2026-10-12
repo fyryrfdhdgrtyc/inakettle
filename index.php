@@ -42,8 +42,39 @@ error_reporting(E_ALL);
 </head>
 <body>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-    <h1><?php echo "Good "; if($time >= 0 && $time <= 4){echo 'night, ';} elseif($time >= 4 && $time <= 11){echo 'morning, ';} elseif($time >= 11 && $time <= 16){echo 'afternon, ';} elseif($time >= 16 && $time <= 24){echo 'evening, ';} echo $udata['nickname'];?></h1>
-    <form action="changenickname.php" method="post"><input type="text" placeholder="new nickname" name="name" required><input type="submit"></form>
+    <header>
+        <nav class="navbar sm:navbar-expand">
+            <div class="container-fluid">
+                <h2><?php echo "Good "; if($time >= 0 && $time <= 4){echo 'night, ';} elseif($time >= 4 && $time <= 11){echo 'morning, ';} elseif($time >= 11 && $time <= 16){echo 'afternoon, ';} elseif($time >= 16 && $time <= 24){echo 'evening, ';} echo $udata['nickname'];?></h2>
+                <button class="btn-icon navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon" aria-hidden="true"></span>
+                </button>
+                <dialog class="offcanvas offcanvas-end" tabindex="-1" id="navbarNav" aria-labelledby="navbarNavLabel">
+                    <div class="drawer-header d-flex justify-content-between">
+                        <h5 class="drawer-title" id="navbarNavLabel">Menu</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                    </div>
+                    <div class="drawer-body">
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a class="nav-link active" aria-current="page" href="#newNickname">Change nickname</a>
+                            </li>
+                            <li class="nav-item"> 
+                                    <a class="nav-link active" name="logout" type="submit" href="logout.php" method="post">Byebye</a>
+                                
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link active" type="submit" href="deleteaccount.php" method="post">Sybau kys</a>
+                            </li>
+                        </ul>
+                    </div>
+                </dialog>
+            </div>
+        </nav>
+    </header>
+    
+    <main>
+<form action="changenickname.php" method="post"><input type="text" placeholder="new nickname" name="name" required><input type="submit"></form>
     <div style="display: flex; gap: 10px;" align-items-center justify-content-between>
         <h2>You have <?php echo $tcount['count(*)']; ?> tasks in total</h2>
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newTask">
@@ -99,15 +130,11 @@ error_reporting(E_ALL);
                     </div>
             </div>
             <?php endwhile; ?>
+    </main>
+    
+    
     
     
 
-
-    <form action="logout.php" method="post">
-        <button type="submit" name="logout">logout</button>
-    </form>
-    <form action="deleteaccount.php" method="post">
-        <button type="submit">kys</button>
-    </form>
-</body>
+    </body>
 </html>
