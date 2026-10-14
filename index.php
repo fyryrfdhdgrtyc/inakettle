@@ -22,7 +22,7 @@ error_reporting(E_ALL);
     $taskscount = $taskscountquery->execute();
     $tcount = $taskscount->fetchArray(SQLITE3_ASSOC);
 
-    $tasksinfoquery = $db->prepare("select id, name, description, status, createdat from Task where tuid = :uid");
+    $tasksinfoquery = $db->prepare("select id, name, description, status, createdat, priority, tuid from Task where tuid = :uid");
     $tasksinfoquery->bindValue(":uid", $uid, SQLITE3_INTEGER);
 
     $tasksinforaw = $tasksinfoquery->execute();
@@ -57,11 +57,13 @@ error_reporting(E_ALL);
                     <div class="drawer-body">
                         <ul class="navbar-nav">
                             <li class="nav-item">
-                                <a class="nav-link active" aria-current="page" href="#newNickname">Change nickname</a>
+                                <a class="nav-link active" href="#CNCollapsed" data-bs-toggle="collapse" aria-expanded="false">Cange nickname</a>
+                                <div class="collapse"  id="CNCollapsed">
+                                    <form action="changenickname.php" method="post"><input type="text" placeholder="new nickname" name="name" required><input type="submit"></form>
+                                </div>
                             </li>
                             <li class="nav-item"> 
                                     <a class="nav-link active" name="logout" type="submit" href="logout.php" method="post">Byebye</a>
-                                
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link active" type="submit" href="deleteaccount.php" method="post">Sybau kys</a>
@@ -73,13 +75,13 @@ error_reporting(E_ALL);
         </nav>
     </header>
     
-    <main>
-<form action="changenickname.php" method="post"><input type="text" placeholder="new nickname" name="name" required><input type="submit"></form>
-    <div style="display: flex; gap: 10px;" align-items-center justify-content-between>
-        <h2>You have <?php echo $tcount['count(*)']; ?> tasks in total</h2>
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newTask">
-  Create new
-</button>
+    <main style="padding: 0.5%">
+
+   <div style="display: flex; gap: 10px;" align-items-center justify-content-between>
+        <h2>You have <?php echo $tcount['count(*)']; ?> tasks in total.</h2>
+        <h2><a class="navlink active"  role="button" data-bs-toggle="modal" data-bs-target="#newTask">
+  Create a new one
+</a></h2>
     <form action="newtask.php" method="post">    
         <div class="modal fade" id="newTask" tabindex="-1" aria-labelledby="newtask" aria-hidden="true">
             <div class="modal-dialog">
@@ -92,7 +94,15 @@ error_reporting(E_ALL);
                                 
                                     <input type="text" placeholder="name" required name="name">
                                     <input type="text" placeholder="description" name="desc">
-                                
+                                    <div class="d-flex justify-content-between">
+                                        <label for="range1" class="form-label">Priority</label>
+                                        <div class="form-range">
+                                        <input type="range" class="form-range-input" id="range1" min="1" max="4" step="1" name="priority" value="1">
+                                        </div>
+                                    </div>
+
+                                    
+                                                                    
                     </div>
                     <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -105,36 +115,124 @@ error_reporting(E_ALL);
 
     </div>
     
-    
-    
-        <?php 
 
-            while ($task = $tasksinforaw->fetchArray(SQLITE3_ASSOC)): 
-            ?>
-                <div class="card" style="width: 18rem;">
-                    <div class="card-body">
+    <div class="border rounded d-flex" >
+        <div class="border rounded d-flex flex-column align-items-center" style="width: 25%;" ><h5 style="text-align: center;">Highest priority</h5>
+            <?php 
+
+                while ($task = $tasksinforaw->fetchArray(SQLITE3_ASSOC)): 
+                ?>
+                <?php if($task['priority'] == 4):?>
+                    <div class="card" style="margin: 2%; width: 98%">
+                        <div class="card-body">
+                            
+                            <div class="d-flex align-items-center" style="gap: 5px;">
+                                <h3 class="card-title text-truncate d-block"><?php echo $task['name']?></h3>
+                                <span class="badge <?php  if($task['status'] == 'todo'){echo "badge text-bg-primary";}elseif($task['status'] == 'done'){echo "badge text-bg-success";}?>"><?php echo $task['status']?></span>
+                                
+                                
+                            </div>
+                            <p class="card-subtitle" style="color: grey"><?php echo $task['createdat']?></p>
+                            <p class="card-text"><?php echo $task['description']?></p>
+                            <div class="btn-group justify-content-between" style="width: 100%">
+                                <form action="removetask.php" method="post"><button type="submit" class="nav-link active" name="tid" value=<?php echo htmlspecialchars($task['id']); ?> style="color: red;">remove</button></form>
+                                <form action="statuschange.php" method="post"><button type="submit" class="nav-link active" name="tid" value=<?php echo htmlspecialchars($task['id']); ?> style="color: <?php  if($task['status'] == 'todo'){echo "green";}elseif($task['status'] == 'done'){echo "rgb(0, 137, 255)";}?>">toggle</button></form>
+                            </div>
                         
-                        <div class="d-flex align-items-center" style="gap: 5px;">
-                            <h3 class="card-title"><?php echo $task['name']?></h3>
-                            <span class="badge <?php  if($task['status'] == 'todo'){echo "badge text-bg-primary";}elseif($task['status'] == 'done'){echo "badge text-bg-success";}?>"><?php echo $task['status']?></span>
-                            
-                            
                         </div>
-                        <p class="card-subtitle" style="color: grey"><?php echo $task['createdat']?></p>
-                        <p class="card-text"><?php echo $task['description']?></p>
-                        <div class="btn-group justify-content-between" style="width: 100%">
-                            <form action="removetask.php" method="post"><button type="submit" class="btn btn-primary" name="tid" value=<?php echo htmlspecialchars($task['id']); ?>>remove</button></form>
-                            <form action="statuschange.php" method="post"><button type="submit" class="btn btn-primary" name="tid" value=<?php echo htmlspecialchars($task['id']); ?>>toggle</button></form>
-                        </div>
-                       
-                    </div>
-            </div>
+                </div>
+                    <?php endif;?>
             <?php endwhile; ?>
+        </div>
+
+                <div class="border rounded d-flex flex-column align-items-center" style="width: 25%;" ><h5 style="text-align: center;">High priority</h5>
+            <?php 
+
+                while ($task = $tasksinforaw->fetchArray(SQLITE3_ASSOC)): 
+                ?>
+                <?php if($task['priority'] == 3):?>
+                    <div class="card" style="margin: 2%; width: 98%">
+                        <div class="card-body">
+                            
+                            <div class="d-flex align-items-center" style="gap: 5px;">
+                                <h3 class="card-title text-truncate d-block"><?php echo $task['name']?></h3>
+                                <span class="badge <?php  if($task['status'] == 'todo'){echo "badge text-bg-primary";}elseif($task['status'] == 'done'){echo "badge text-bg-success";}?>"><?php echo $task['status']?></span>
+                                
+                                
+                            </div>
+                            <p class="card-subtitle" style="color: grey"><?php echo $task['createdat']?></p>
+                            <p class="card-text"><?php echo $task['description']?></p>
+                            <div class="btn-group justify-content-between" style="width: 100%">
+                                <form action="removetask.php" method="post"><button type="submit" class="nav-link active" name="tid" value=<?php echo htmlspecialchars($task['id']); ?> style="color: red;">remove</button></form>
+                                <form action="statuschange.php" method="post"><button type="submit" class="nav-link active" name="tid" value=<?php echo htmlspecialchars($task['id']); ?> style="color: <?php  if($task['status'] == 'todo'){echo "green";}elseif($task['status'] == 'done'){echo "rgb(0, 137, 255)";}?>">toggle</button></form>
+                            </div>
+                        
+                        </div>
+                </div>
+                    <?php endif;?>
+            <?php endwhile; ?>
+        </div>
+
+                <div class="border rounded d-flex flex-column align-items-center" style="width: 25%;" ><h5 style="text-align: center;">Low priority</h5>
+            <?php 
+
+                while ($task = $tasksinforaw->fetchArray(SQLITE3_ASSOC)): 
+                ?>
+                <?php if($task['priority'] == 2):?>
+                    <div class="card" style="margin: 2%; width: 98%">
+                        <div class="card-body">
+                            
+                            <div class="d-flex align-items-center" style="gap: 5px;">
+                                <h3 class="card-title text-truncate d-block"><?php echo $task['name']?></h3>
+                                <span class="badge <?php  if($task['status'] == 'todo'){echo "badge text-bg-primary";}elseif($task['status'] == 'done'){echo "badge text-bg-success";}?>"><?php echo $task['status']?></span>
+                                
+                                
+                            </div>
+                            <p class="card-subtitle" style="color: grey"><?php echo $task['createdat']?></p>
+                            <p class="card-text"><?php echo $task['description']?></p>
+                            <div class="btn-group justify-content-between" style="width: 100%">
+                                <form action="removetask.php" method="post"><button type="submit" class="nav-link active" name="tid" value=<?php echo htmlspecialchars($task['id']); ?> style="color: red;">remove</button></form>
+                                <form action="statuschange.php" method="post"><button type="submit" class="nav-link active" name="tid" value=<?php echo htmlspecialchars($task['id']); ?> style="color: <?php  if($task['status'] == 'todo'){echo "green";}elseif($task['status'] == 'done'){echo "rgb(0, 137, 255)";}?>">toggle</button></form>
+                            </div>
+                        
+                        </div>
+                </div>
+                    <?php endif;?>
+            <?php endwhile; ?>
+        </div>
+
+                <div class="border rounded d-flex flex-column align-items-center" style="width: 25%;" ><h5 style="text-align: center;">Lowest priority</h5>
+            <?php 
+
+                while ($task = $tasksinforaw->fetchArray(SQLITE3_ASSOC)): 
+                ?>
+                <?php if($task['priority'] == 1):?>
+                    <div class="card" style="margin: 2%; width: 98%">
+                        <div class="card-body">
+                            
+                            <div class="d-flex align-items-center" style="gap: 5px;">
+                                <h3 class="card-title text-truncate d-block"><?php echo $task['name']?></h3>
+                                <span class="badge <?php  if($task['status'] == 'todo'){echo "badge text-bg-primary";}elseif($task['status'] == 'done'){echo "badge text-bg-success";}?>"><?php echo $task['status']?></span>
+                                
+                                
+                            </div>
+                            <p class="card-subtitle" style="color: grey"><?php echo $task['createdat']?></p>
+                            <p class="card-text"><?php echo $task['description']?></p>
+                            <div class="btn-group justify-content-between" style="width: 100%">
+                                <form action="removetask.php" method="post"><button type="submit" class="nav-link active" name="tid" value=<?php echo htmlspecialchars($task['id']); ?> style="color: red;">remove</button></form>
+                                <form action="statuschange.php" method="post"><button type="submit" class="nav-link active" name="tid" value=<?php echo htmlspecialchars($task['id']); ?> style="color: <?php  if($task['status'] == 'todo'){echo "green";}elseif($task['status'] == 'done'){echo "rgb(0, 137, 255)";}?>">toggle</button></form>
+                            </div>
+                        
+                        </div>
+                </div>
+                    <?php endif;?>
+            <?php endwhile; ?>
+        </div>
+        
+    </div>
+    
     </main>
-    
-    
-    
-    
+      
 
     </body>
 </html>
