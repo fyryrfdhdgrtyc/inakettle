@@ -12,16 +12,27 @@
     $uid = $_SESSION['uid'];
 
     $tid = $_POST['tid'];
+    $action = $_POST['action'];
     $query = $db->prepare('select status from Task where id = :tid');
     $query->bindValue(':tid', $tid);
     $checkstatus = $query->execute();
     $currstatus = $checkstatus->fetchArray(SQLITE3_ASSOC);
 
-    if($currstatus['status'] == 'todo'){
-        $status = 'done';
+    if($currstatus['status'] >= 3 && $action == "up"){
+        header('Location: /index.php');
+        exit();
     }
-    else if($currstatus['status'] == 'done'){
-        $status = 'todo';
+    else if($currstatus['status'] <= 1 && $action == "down"){
+        header('Location: /index.php');
+        exit();
+    }
+    else{
+        if($action == "down"){
+            $status = $currstatus["status"] - 1;
+        }
+        if($action == "up"){
+            $status = $currstatus["status"] + 1;
+        }
     }
 
 
