@@ -42,7 +42,7 @@ error_reporting(E_ALL);
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -56,8 +56,42 @@ error_reporting(E_ALL);
     <header>
         <nav class="navbar sm:navbar-expand">
             <div class="container-fluid">
-                <h2><?php echo "Good "; if($time >= 0 && $time <= 4){echo 'night, ';} elseif($time >= 4 && $time <= 11){echo 'morning, ';} elseif($time >= 11 && $time <= 16){echo 'afternoon, ';} elseif($time >= 16 && $time <= 24){echo 'evening, ';} echo $udata['nickname'];?></h2>
-                <button class="btn-icon navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <h2><?php echo "Good "; if($time >= 0 && $time <= 4){echo 'night, ';} elseif($time >= 4 && $time <= 11){echo 'morning, ';} elseif($time >= 11 && $time <= 16){echo 'afternoon, ';} elseif($time >= 16 && $time <= 24){echo 'evening, ';} echo $udata['nickname'];?>. <?php echo $tcount['count(*)']; ?> tasks so far</h2>
+                <div class="btn-group" role="group">
+                    <a class="btn btn-primary rounded-start m-0"  role="button" data-bs-toggle="modal" data-bs-target="#newTask"><i class="fa fa-plus" aria-hidden="true"></i></a>
+                    <form action="newtask.php" method="post">    
+                        <div class="modal fade" id="newTask" tabindex="-1" aria-labelledby="newtask" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="exampleModalLabel">Create a new task</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                                
+                                                    <input type="text" class="form-control" placeholder="name" required name="name">
+                                                    <input type="text" class="form-control" placeholder="description" name="desc">
+                                                    <input type="date" class="form-control" placeholder="deadline" name="deadline" value="<?php echo date("Y-m-d");?>">
+                                                                                        
+                                                    <div class="d-flex justify-content-between">
+                                                        
+                                                        <div class="form-range align-items-center">
+                                                            <label for="range1" class="form-label">Priority</label>
+                                                            <input type="range" class="form-range-input" id="range1" min="1" max="3" step="1" name="priority" value="3">
+                                                        </div>
+                                                    </div>
+                    
+                                                                                    
+                                    </div>
+                                    <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary-outline" data-bs-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-primary">Create</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <button class="btn btn-secondary-outline rounded-end m-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon" aria-hidden="true"></span>
                 </button>
                 <dialog class="offcanvas offcanvas-end" tabindex="-1" id="navbarNav" aria-labelledby="navbarNavLabel">
@@ -82,51 +116,13 @@ error_reporting(E_ALL);
                         </ul>
                     </div>
                 </dialog>
+                </div>
+                
             </div>
         </nav>
     </header>
     
     <main style="padding: 0.5%">
-
-   <div style="display: flex; gap: 10px;" align-items-center justify-content-between>
-        <h2>You have <?php echo $tcount['count(*)']; ?> tasks in total.</h2>
-        <h2><a class="navlink active"  role="button" data-bs-toggle="modal" data-bs-target="#newTask">
-  Create a new one
-</a></h2>
-    <form action="newtask.php" method="post">    
-        <div class="modal fade" id="newTask" tabindex="-1" aria-labelledby="newtask" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="exampleModalLabel">Create a new task</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                                
-                                    <input type="text" class="form-control" placeholder="name" required name="name">
-                                    <input type="text" class="form-control" placeholder="description" name="desc">
-                                    <input type="date" class="form-control" placeholder="deadline" name="deadline">
-                                                                        
-                                    <div class="d-flex justify-content-between">
-                                        <label for="range1" class="form-label">Priority</label>
-                                        <div class="form-range">
-                                        <input type="range" class="form-range-input" id="range1" min="1" max="3" step="1" name="priority" value="3">
-                                        </div>
-                                    </div>
-    
-                                                                    
-                    </div>
-                    <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Create</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </form>
-
-    </div>
-    
 
     <div class="d-flex justify-content-center">
         <div class="border rounded d-flex flex-column align-items-center" style="width: 25%; min-height: 500px" data-status="todo"><h5 style="text-align: center;">Todo</h5>
