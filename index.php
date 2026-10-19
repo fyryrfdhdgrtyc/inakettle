@@ -22,13 +22,22 @@ error_reporting(E_ALL);
     $taskscount = $taskscountquery->execute();
     $tcount = $taskscount->fetchArray(SQLITE3_ASSOC);
 
-    $tasksinfoquery = $db->prepare("select id, name, description, status, createdat, priority, tuid from Task where tuid = :uid");
+    $tasksinfoquery = $db->prepare("select id, name, description, status, createdat, priority, tuid, deadline from Task where tuid = :uid");
     $tasksinfoquery->bindValue(":uid", $uid, SQLITE3_INTEGER);
 
     $tasksinforaw = $tasksinfoquery->execute();
 
     $time = (int)date('H');
+
+    $statuschangequery = $db->prepare('update Task set status = "missed" where id = :id');
+
+    while ($task = $tasksinforaw->fetchArray(SQLITE3_ASSOC)):
+        if (date($task['deadline']) < date("Y-m-d") && $task['status'] != "done"){
+            $statuschangequery->bindValue(":id", $task["id"], SQLITE3_INTEGER);
+            $statuschangequery->execute();
+        }
     
+    endwhile;
     
 ?>
 
@@ -92,16 +101,17 @@ error_reporting(E_ALL);
                     </div>
                     <div class="modal-body">
                                 
-                                    <input type="text" placeholder="name" required name="name">
-                                    <input type="text" placeholder="description" name="desc">
+                                    <input type="text" class="form-control" placeholder="name" required name="name">
+                                    <input type="text" class="form-control" placeholder="description" name="desc">
+                                    <input type="date" class="form-control" placeholder="deadline" name="deadline">
+                                                                        
                                     <div class="d-flex justify-content-between">
                                         <label for="range1" class="form-label">Priority</label>
                                         <div class="form-range">
-                                        <input type="range" class="form-range-input" id="range1" min="1" max="4" step="1" name="priority" value="1">
+                                        <input type="range" class="form-range-input" id="range1" min="1" max="4" step="1" name="priority" valuekkk="1">
                                         </div>
                                     </div>
-
-                                    
+    
                                                                     
                     </div>
                     <div class="modal-footer">
@@ -128,11 +138,12 @@ error_reporting(E_ALL);
                             
                             <div class="d-flex align-items-center" style="gap: 5px;">
                                 <h3 class="card-title text-truncate d-block"><?php echo $task['name']?></h3>
-                                <span class="badge <?php  if($task['status'] == 'todo'){echo "badge text-bg-primary";}elseif($task['status'] == 'done'){echo "badge text-bg-success";}?>"><?php echo $task['status']?></span>
+                                <span class="badge <?php  if($task['status'] == 'todo'){echo "badge text-bg-primary";}elseif($task['status'] == 'done'){echo "badge text-bg-success";}elseif($task['status'] == 'missed'){echo "badge text-bg-danger";}?>"><?php echo $task['status']?></span>
                                 
                                 
                             </div>
-                            <p class="card-subtitle" style="color: grey"><?php echo $task['createdat']?></p>
+                            <p class="card-subtitle" style="color: grey"><?php echo "since ",  $task['createdat']?></p>
+                            <p class="card-subtitle" style="color: grey"><?php echo "until ", htmlspecialchars((string)$task['deadline']); ?></p>
                             <p class="card-text"><?php echo $task['description']?></p>
                             <div class="btn-group justify-content-between" style="width: 100%">
                                 <form action="removetask.php" method="post"><button type="submit" class="nav-link active" name="tid" value=<?php echo htmlspecialchars($task['id']); ?> style="color: red;">remove</button></form>
@@ -156,11 +167,12 @@ error_reporting(E_ALL);
                             
                             <div class="d-flex align-items-center" style="gap: 5px;">
                                 <h3 class="card-title text-truncate d-block"><?php echo $task['name']?></h3>
-                                <span class="badge <?php  if($task['status'] == 'todo'){echo "badge text-bg-primary";}elseif($task['status'] == 'done'){echo "badge text-bg-success";}?>"><?php echo $task['status']?></span>
+                                <span class="badge <?php  if($task['status'] == 'todo'){echo "badge text-bg-primary";}elseif($task['status'] == 'done'){echo "badge text-bg-success";}elseif($task['status'] == 'missed'){echo "badge text-bg-danger";}?>"><?php echo $task['status']?></span>
                                 
                                 
                             </div>
-                            <p class="card-subtitle" style="color: grey"><?php echo $task['createdat']?></p>
+                            <p class="card-subtitle" style="color: grey"><?php echo "since ",  $task['createdat']?></p>
+                            <p class="card-subtitle" style="color: grey"><?php echo "until ", htmlspecialchars((string)$task['deadline']); ?></p>
                             <p class="card-text"><?php echo $task['description']?></p>
                             <div class="btn-group justify-content-between" style="width: 100%">
                                 <form action="removetask.php" method="post"><button type="submit" class="nav-link active" name="tid" value=<?php echo htmlspecialchars($task['id']); ?> style="color: red;">remove</button></form>
@@ -184,11 +196,12 @@ error_reporting(E_ALL);
                             
                             <div class="d-flex align-items-center" style="gap: 5px;">
                                 <h3 class="card-title text-truncate d-block"><?php echo $task['name']?></h3>
-                                <span class="badge <?php  if($task['status'] == 'todo'){echo "badge text-bg-primary";}elseif($task['status'] == 'done'){echo "badge text-bg-success";}?>"><?php echo $task['status']?></span>
+                                <span class="badge <?php  if($task['status'] == 'todo'){echo "badge text-bg-primary";}elseif($task['status'] == 'done'){echo "badge text-bg-success";}elseif($task['status'] == 'missed'){echo "badge text-bg-danger";}?>"><?php echo $task['status']?></span>
                                 
                                 
                             </div>
-                            <p class="card-subtitle" style="color: grey"><?php echo $task['createdat']?></p>
+                            <p class="card-subtitle" style="color: grey"><?php echo "since ",  $task['createdat']?></p>
+                            <p class="card-subtitle" style="color: grey"><?php echo "until ", htmlspecialchars((string)$task['deadline']); ?></p>
                             <p class="card-text"><?php echo $task['description']?></p>
                             <div class="btn-group justify-content-between" style="width: 100%">
                                 <form action="removetask.php" method="post"><button type="submit" class="nav-link active" name="tid" value=<?php echo htmlspecialchars($task['id']); ?> style="color: red;">remove</button></form>
@@ -212,11 +225,12 @@ error_reporting(E_ALL);
                             
                             <div class="d-flex align-items-center" style="gap: 5px;">
                                 <h3 class="card-title text-truncate d-block"><?php echo $task['name']?></h3>
-                                <span class="badge <?php  if($task['status'] == 'todo'){echo "badge text-bg-primary";}elseif($task['status'] == 'done'){echo "badge text-bg-success";}?>"><?php echo $task['status']?></span>
+                                <span class="badge <?php  if($task['status'] == 'todo'){echo "badge text-bg-primary";}elseif($task['status'] == 'done'){echo "badge text-bg-success";}elseif($task['status'] == 'missed'){echo "badge text-bg-danger";}?>"><?php echo $task['status']?></span>
                                 
                                 
                             </div>
-                            <p class="card-subtitle" style="color: grey"><?php echo $task['createdat']?></p>
+                            <p class="card-subtitle" style="color: grey"><?php echo "since ",  $task['createdat']?></p>
+                            <p class="card-subtitle" style="color: grey"><?php echo "until ", htmlspecialchars((string)$task['deadline']); ?></p>
                             <p class="card-text"><?php echo $task['description']?></p>
                             <div class="btn-group justify-content-between" style="width: 100%">
                                 <form action="removetask.php" method="post"><button type="submit" class="nav-link active" name="tid" value=<?php echo htmlspecialchars($task['id']); ?> style="color: red;">remove</button></form>
@@ -232,7 +246,6 @@ error_reporting(E_ALL);
     </div>
     
     </main>
-      
 
     </body>
 </html>

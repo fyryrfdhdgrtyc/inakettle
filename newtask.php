@@ -13,13 +13,15 @@
     $name = $_POST['name'];  
     $desc = $_POST['desc'];
     $priority = $_POST['priority'];
+    $dl = $_POST['deadline'];
 
 
-    $stmt = $db->prepare('insert into Task(name, description, tuid, priority) values(:name, :desc, :tuid, :priority)');
+    $stmt = $db->prepare('insert into Task(name, description, tuid, priority, deadline) values(:name, :desc, :tuid, :priority, :deadline)');
     $stmt->bindValue(':name', $name, SQLITE3_TEXT);
     $stmt->bindValue(':desc', $desc, SQLITE3_TEXT);
     $stmt->bindValue(':tuid', $uid, SQLITE3_INTEGER);
     $stmt->bindValue(':priority', $priority, SQLITE3_INTEGER);
+    $stmt->bindValue(':deadline', $dl, SQLITE3_TEXT);
 
     if($stmt->execute()){
         header('Location: /index.php');
