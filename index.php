@@ -77,7 +77,13 @@ error_reporting(E_ALL);
                                                         
                                                         <div class="form-range align-items-center">
                                                             <label for="range1" class="form-label">Priority</label>
-                                                            <input type="range" class="form-range-input" id="range1" min="1" max="3" step="1" name="priority" value="3">
+                                                            <input type="range" class="form-range-input" id="range1" min="1" max="3" step="1" name="priority" value="3" list="rangeTicksList">
+                                                            
+                                                            <datalist id="rangeTicksList">
+                                                              <option value="1" label="low"></option>
+                                                              <option value="2"></option>
+                                                              <option value="3" label="high"></option>
+                                                            </datalist>
                                                         </div>
                                                     </div>
                     
@@ -163,7 +169,7 @@ error_reporting(E_ALL);
             <?php endwhile; ?>
         </div>
 
-         <div class="border rounded d-flex flex-column align-items-center" style="width: 25%; height = 100%;" ><h5 style="text-align: center;">Working</h5>
+         <div class="border rounded d-flex flex-column align-items-center" style="width: 25%; min-height: 500px;" ><h5 style="text-align: center;">Working</h5>
             <?php 
 
             while ($task = $tasksinforaw->fetchArray(SQLITE3_ASSOC)): 
@@ -201,7 +207,7 @@ error_reporting(E_ALL);
             <?php endwhile; ?>
         </div>
 
-            <div class="border rounded d-flex flex-column align-items-center" style="width: 25%; height = 100%;" ><h5 style="text-align: center;">Done</h5>
+            <div class="border rounded d-flex flex-column align-items-center" style="width: 25%; min-height: 500px;" ><h5 style="text-align: center;">Done</h5>
             <?php 
 
                 while ($task = $tasksinforaw->fetchArray(SQLITE3_ASSOC)): 
