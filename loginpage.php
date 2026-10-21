@@ -11,7 +11,7 @@
     
     <form action="login.php" method="post">
         
-        <div class="d-flex flex-column align-items-center justify-content-center gap-2" style="min-width: 400px; width: 15vw; height: 25vh; transform: translateY(25vh); background-color: rgb(69, 74, 83); border-radius: 25px; padding: 25px">
+        <div class="d-flex flex-column align-items-center justify-content-center gap-2" style="min-width: 400px; width: 15vw; height: 25vh; min-height:300px; transform: translateY(25vh); background-color: rgb(69, 74, 83); border-radius: 25px; padding: 25px">
             <h4>Log in</h4>
             <input class="form-text" type="text" name="name" placeholder="login" required style="width: 100%">
             <input class="form-text" type="password" name="password" placeholder="password" required style="width: 100%">

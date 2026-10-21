@@ -1,7 +1,5 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+
 
     session_start();
     if (!isset($_SESSION['uid'])) {
@@ -11,6 +9,7 @@ error_reporting(E_ALL);
     $db = new SQLite3('inakettle.db');
 
     $uid = $_SESSION['uid'];
+    $pid = $_SESSION['pid'];
     $data = $db->prepare("select * from User where id = :id");
     $data->bindValue(":id", $uid, SQLITE3_INTEGER);
     $res = $data->execute();
@@ -22,8 +21,12 @@ error_reporting(E_ALL);
     $taskscount = $taskscountquery->execute();
     $tcount = $taskscount->fetchArray(SQLITE3_ASSOC);
 
-    $tasksinfoquery = $db->prepare("select id, name, description, status, createdat, priority, tuid, deadline from Task where tuid = :uid order by priority desc");
+    $tasksinfoquery = $db->prepare("select id, name, description, status, createdat, priority, tuid, deadline, pid from Task where tuid = :uid order by priority desc");
     $tasksinfoquery->bindValue(":uid", $uid, SQLITE3_INTEGER);
+
+    $projectsquery = $db->prepare("select * from Project where uid = :uid");
+    $projectsquery->bindValue(":uid", $uid, SQLITE3_INTEGER);
+    $projects = $projectsquery->execute();
 
     $tasksinforaw = $tasksinfoquery->execute();
 
@@ -57,6 +60,43 @@ error_reporting(E_ALL);
         <nav class="navbar sm:navbar-expand">
             <div class="container-fluid">
                 <h2><?php echo "Good "; if($time >= 0 && $time <= 4){echo 'night, ';} elseif($time >= 4 && $time <= 11){echo 'morning, ';} elseif($time >= 11 && $time <= 16){echo 'afternoon, ';} elseif($time >= 16 && $time <= 24){echo 'evening, ';} echo $udata['nickname'];?>. <?php echo $tcount['count(*)']; ?> tasks so far</h2>
+                  <div class="d-flex" style="gap: 10px;">
+
+                    <a class="btn btn-primary rounded-start m-0"  role="button" data-bs-toggle="modal" data-bs-target="#newProject">New project</a>
+                    <form action="newproject.php" method="post">    
+                        <div class="modal fade" id="newProject" tabindex="-1" aria-labelledby="newtask" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="exampleModalLabel">Create a new project</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                                
+                                        <input type="text" class="form-control" placeholder="name" required name="name">
+                                                                               
+                                    </div>
+                                    <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary-outline" data-bs-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-primary">Create</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                      <form action="projectupdate.php" method="post">
+                          <select class="form-select" aria-label="Default select example" name="pid" onchange="this.form.submit()">
+                                <?php while($project = $projects->fetchArray(SQLITE3_ASSOC)):?>
+                                    <?php if($pid == 0): $_SESSION['pid'] = $project['id']; header("Refresh: 0"); exit();?>
+                                    <?php elseif($project['uid'] == $uid):?>
+                                        <option value="<?php echo $project['id']?>" <?php if($pid == $project['id']){echo "selected";}?>><?php echo $project['name']?></option>
+                                    <?php endif; ?>
+                                <?php endwhile; ?>
+                            </select>
+                      </form>
+                            
+                     
+                    
                 <div class="btn-group" role="group">
                     <a class="btn btn-primary rounded-start m-0"  role="button" data-bs-toggle="modal" data-bs-target="#newTask"><i class="fa fa-plus" aria-hidden="true"></i></a>
                     <form action="newtask.php" method="post">    
@@ -72,7 +112,7 @@ error_reporting(E_ALL);
                                                     <input type="text" class="form-control" placeholder="name" required name="name">
                                                     <input type="text" class="form-control" placeholder="description" name="desc">
                                                     <input type="date" class="form-control" placeholder="deadline" name="deadline" value="<?php echo date("Y-m-d");?>">
-                                                                                        
+                                                    <input type="hidden" name="pid" value="<?php echo $pid?>">                                   
                                                     <div class="d-flex justify-content-between">
                                                         
                                                         <div class="form-range align-items-center">
@@ -122,8 +162,9 @@ error_reporting(E_ALL);
                         </ul>
                     </div>
                 </dialog>
-                </div>
-                
+                </div>  
+                      
+                  </div>
             </div>
         </nav>
     </header>
@@ -137,7 +178,7 @@ error_reporting(E_ALL);
                 while ($task = $tasksinforaw->fetchArray(SQLITE3_ASSOC)): 
                 ?>
                 <?php
-                if($task['status'] == 1):?>
+                if($task['status'] == 1 && $task['pid'] == $pid):?>
                     <div class="card" style="margin: 2%; width: 98%" draggable="true"  data-id="<?php echo htmlspecialchars($task['id']); ?>" style="margin: 2%; width: 96%; cursor: grab;">
                         <div class="card-body">
                             
@@ -175,7 +216,7 @@ error_reporting(E_ALL);
             while ($task = $tasksinforaw->fetchArray(SQLITE3_ASSOC)): 
                 ?>
                 <?php
-                if($task['status'] == 2):?>
+                if($task['status'] == 2 && $task['pid'] == $pid):?>
                     <div class="card" style="margin: 2%; width: 98%" draggable="true"  data-id="<?php echo htmlspecialchars($task['id']); ?>" style="margin: 2%; width: 96%; cursor: grab;">
                         <div class="card-body">
                             
@@ -213,7 +254,7 @@ error_reporting(E_ALL);
                 while ($task = $tasksinforaw->fetchArray(SQLITE3_ASSOC)): 
                 ?>
                 <?php
-                if($task['status'] == 3):?>
+                if($task['status'] == 3 && $task['pid'] == $pid):?>
                     <div class="card" style="margin: 2%; width: 98%" draggable="true"  data-id="<?php echo htmlspecialchars($task['id']); ?>" style="margin: 2%; width: 96%; cursor: grab;">
                         <div class="card-body">
                             
@@ -251,7 +292,7 @@ error_reporting(E_ALL);
                 while ($task = $tasksinforaw->fetchArray(SQLITE3_ASSOC)): 
                 ?>
                 <?php
-                if($task['status'] == 4):?>
+                if($task['status'] == 4  && $task['pid'] == $pid):?>
                     <div class="card" style="margin: 2%; width: 98%" draggable="true"  data-id="<?php echo htmlspecialchars($task['id']); ?>" style="margin: 2%; width: 96%; cursor: grab;">
                         <div class="card-body">
                             
@@ -279,7 +320,11 @@ error_reporting(E_ALL);
         
     </div>
 
-    
+    <div class="d-flex justify-content-end" style="margin-top: 10px">
+        <form action="deleteproject.php" method="post">
+            <button class="btn btn-danger" type="submit" name="pid" value="<?php echo $pid?>">Delete project</button>
+        </form>
+    </div>
     
     </main>
 
