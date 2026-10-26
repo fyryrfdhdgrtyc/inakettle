@@ -1,9 +1,5 @@
 <?php
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
     $db = new SQLite3('inakettle.db');
 
     $login = $_POST['name'];
@@ -20,11 +16,12 @@ error_reporting(E_ALL);
         if(password_verify($password, $passwd)){
             session_start();
             $_SESSION['uid'] = $usr['id'];
+            $_SESSION['pid'] = 0;
             header("Location: /index.php");
             exit();
         }
-        else echo'kiss my ass';
+        else echo'login error';
     }
-    else echo 'kiss my ass';
+    else echo 'login error';
 
 ?>

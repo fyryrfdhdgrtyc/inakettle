@@ -87,7 +87,8 @@
                       <form action="projectupdate.php" method="post">
                           <select class="form-select" aria-label="Default select example" name="pid" onchange="this.form.submit()">
                                 <?php while($project = $projects->fetchArray(SQLITE3_ASSOC)):?>
-                                    <?php if($pid == 0): $_SESSION['pid'] = $project['id']; header("Refresh: 0"); exit();?>
+                                    <?php if($pid == 0): $_SESSION['pid'] = $project['id'];  echo '<script type="text/javascript">window.location.reload();</script>';
+    exit();?>
                                     <?php elseif($project['uid'] == $uid):?>
                                         <option value="<?php echo $project['id']?>" <?php if($pid == $project['id']){echo "selected";}?>><?php echo $project['name']?></option>
                                     <?php endif; ?>
