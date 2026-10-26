@@ -15,8 +15,9 @@
     $res = $data->execute();
     $udata = $res->fetchArray(SQLITE3_ASSOC);
 
-    $taskscountquery = $db->prepare("select count(*) from Task where tuid = :uid");
+    $taskscountquery = $db->prepare("select count(*) from Task where tuid = :uid and pid = :pid");
     $taskscountquery->bindValue(":uid", $uid, SQLITE3_INTEGER);
+    $taskscountquery->bindValue(":pid", $pid, SQLITE3_INTEGER);
 
     $taskscount = $taskscountquery->execute();
     $tcount = $taskscount->fetchArray(SQLITE3_ASSOC);
